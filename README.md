@@ -1,6 +1,5 @@
 # kubuntu scripts
 
 ```bash
-chmmod +x ./prepare
-./prepare
+chmod +x ./prepare && ./prepare
 ```
