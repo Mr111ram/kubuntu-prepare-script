@@ -1,1 +1,6 @@
-# kubuntu-ritya-edit-scripts
+# kubuntu scripts
+
+```bash
+chmmod +x ./prepare
+./prepare
+```
