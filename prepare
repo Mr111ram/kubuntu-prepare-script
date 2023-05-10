@@ -1,0 +1,45 @@
+#!/bin/bash
+
+echo "## by Ritya" > /dev/null 2>&1
+
+echo "##################################################################"
+echo "## Script preparation and setup kubuntu welcomes you $USERNAME!"
+echo "##################################################################"
+
+if [[ $EUID -eq 0 ]]; then
+    echo "## Run the script without root"
+    exit 1
+fi
+
+
+USERNAME="$(whoami)"
+ZSH_CONF="$(cat <<EOF
+# ENV
+
+. "$HOME/.cargo/env"
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+# RITYA CUSTOM
+EOF
+)"
+
+
+echo "## Root prepare starting..."
+echo -n "## $x"
+chmod +x prepare_with_root
+sudo ./prepare_with_root
+
+
+echo "## Remove unused folder /home/$USERNAME/snap"
+rm -rf /home/$USERNAME/snap
+
+
+echo "## Add ENV Modify in /home/$USERNAME/.zshrc"
+echo "$ZSH_CONF" >> /home/$USERNAME/.zshrc
+
+### !!! REWRITE ZSH CONFOG
+### Configurate
+### cat env > ~/.zshrc

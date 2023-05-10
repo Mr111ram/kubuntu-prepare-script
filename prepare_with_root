@@ -1,0 +1,74 @@
+#!/bin/bash
+
+if [ "$EUID" -ne 0 ]
+  then echo "Please run as root"
+  exit
+fi
+
+
+echo "## Remove packages and clean system..."
+snap remove firefox --purge
+snap remove gtk-common-themes --purge
+snap remove gnome-42-2204 --purge
+snap remove bare --purge
+snap remove core22 --purge
+
+systemctl stop snapd.service
+systemctl disable snapd.service
+systemctl stop snapd.socket
+systemctl disable snapd.socket
+
+apt autoremove snapd --purge -y
+apt autoremove nvidia* --purge -y
+
+rm -rf /var/cache/app-info
+rm -rf /var/cache/snapd
+
+
+echo "## Add PPA-repository..."
+add-apt-repository ppa:damentz/liquorix -y
+add-apt-repository ppa:apt-fast/stable -y
+
+
+echo "## Update System"
+apt update -y
+apt upgrade -y
+apt list --upgradable
+apt full-upgrade -y
+
+
+echo "## Install..."
+apt install neofetch inxi tmux schedtool curl zsh htop flatpak plasma-discover-backend-flatpak linux-image-liquorix-amd64 linux-headers-liquorix-amd64 zram-config -y
+apt-get install preload parallel -y
+flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+
+
+echo "## Install Drivers"
+ubuntu-drivers autoinstall
+
+
+echo "## Clone and build other packages"
+mkdir temp;cd temp
+git clone https://github.com/Nefelim4ag/Ananicy.git
+./Ananicy/package.sh debian
+./zram-config/install.bash
+dpkg -i ./Ananicy/ananicy-*.deb
+cd ..;rm -rf temp
+
+
+echo "## Install DevDep"
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+source ~/.bashrc
+nvm install 20.1.0
+npm install -g npm@9.6.6
+
+
+echo "## Enable Daemons"
+systemctl enable ananicy
+systemctl start ananicy
+systemctl enable zram-config.service
+systemctl start zram-config.service
+
+
